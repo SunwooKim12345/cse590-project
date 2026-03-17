@@ -1,0 +1,14 @@
+﻿{
+  "run_id": "s2_run01",
+  "dataset_id": "counselchat_hf",
+  "prompt_id": "s2_prompt",
+  "operator": "member2",
+  "scenario_id": "scenario2_single_turn",
+  "models": [
+    "chatgpt",
+    "claude",
+    "character_ai",
+    "gemini"
+  ],
+  "notes": ""
+}

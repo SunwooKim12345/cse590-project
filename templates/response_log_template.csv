@@ -1,0 +1,1 @@
+﻿run_id,timestamp_utc,scenario_id,question_set_item_id,question_id,model_name,model_version,platform,prompt_id,input_prompt,raw_response,response_language,safety_disclaimer_present,help_seeking_referral_present,source_citation_present,operator,notes

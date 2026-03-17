@@ -1,0 +1,28 @@
+{
+  "run_id": "run01",
+  "operator": "member2",
+  "models": [
+    "chatgpt",
+    "claude",
+    "character_ai",
+    "gemini"
+  ],
+  "scenarios": [
+    "scenario1_multi_turn",
+    "scenario2_single_turn"
+  ],
+  "question_set_file": "data/processed/question_sets/final_question_set.csv",
+  "scenario1_script_file": "prompts/frozen/scenario1_persona_scripts.csv",
+  "prompt_package": "prompts/frozen",
+  "status": "ready_for_collection",
+  "files_created": [
+    "logs/responses/raw/run01/responses_s1_chatgpt_member2.csv",
+    "logs/responses/raw/run01/responses_s2_chatgpt_member2.csv",
+    "logs/responses/raw/run01/responses_s1_claude_member2.csv",
+    "logs/responses/raw/run01/responses_s2_claude_member2.csv",
+    "logs/responses/raw/run01/responses_s1_character_ai_member2.csv",
+    "logs/responses/raw/run01/responses_s2_character_ai_member2.csv",
+    "logs/responses/raw/run01/responses_s1_gemini_member2.csv",
+    "logs/responses/raw/run01/responses_s2_gemini_member2.csv"
+  ]
+}
