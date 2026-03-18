@@ -54,7 +54,10 @@ def to_int(series: pd.Series) -> pd.Series:
 def normalize_text(text: str) -> str:
     if text is None:
         return ""
-    return " ".join(str(text).split())
+    value = str(text).strip()
+    if value.lower() in {"nan", "none"}:
+        return ""
+    return " ".join(value.split())
 
 
 def classify_severity(title: str, body: str) -> str:
@@ -85,18 +88,46 @@ def is_informational_question(title: str, body: str) -> bool:
 
 def aggregate_reference_rows(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
+    df["questionID"] = df["questionID"].astype(str)
     df["upvotes_num"] = to_int(df["upvotes"])
     df["views_num"] = to_int(df["views"])
+    df["questionTitle"] = df["questionTitle"].map(normalize_text)
+    df["questionText"] = df["questionText"].map(normalize_text)
+    df["answerText"] = df["answerText"].map(normalize_text)
 
     ranked = df.sort_values(
         ["questionID", "upvotes_num", "views_num"], ascending=[True, False, False]
     )
     one_per_question = ranked.groupby("questionID", as_index=False).first()
 
+    # Backfill title/text from any row of the same questionID when top-ranked row is sparse.
+    def first_non_empty(series: pd.Series) -> str:
+        for value in series:
+            clean = normalize_text(value)
+            if clean:
+                return clean
+        return ""
+
+    title_map = (
+        df.sort_values(["questionID", "views_num"], ascending=[True, False])
+        .groupby("questionID")["questionTitle"]
+        .apply(first_non_empty)
+    )
+    text_map = (
+        df.sort_values(["questionID", "views_num"], ascending=[True, False])
+        .groupby("questionID")["questionText"]
+        .apply(first_non_empty)
+    )
+
     one_per_question["questionID"] = one_per_question["questionID"].astype(str)
-    one_per_question["questionTitle"] = one_per_question["questionTitle"].map(normalize_text)
-    one_per_question["questionText"] = one_per_question["questionText"].map(normalize_text)
+    one_per_question["questionTitle"] = (
+        one_per_question["questionID"].map(title_map).fillna("").map(normalize_text)
+    )
+    one_per_question["questionText"] = (
+        one_per_question["questionID"].map(text_map).fillna("").map(normalize_text)
+    )
     one_per_question["answerText"] = one_per_question["answerText"].map(normalize_text)
+    one_per_question["has_question_text"] = one_per_question["questionText"] != ""
     one_per_question["severity"] = one_per_question.apply(
         lambda row: classify_severity(row["questionTitle"], row["questionText"]), axis=1
     )
@@ -165,7 +196,10 @@ def build_question_set(target_size: int) -> pd.DataFrame:
     raw = load_dataset(DATASET_NAME, split="train").to_pandas()
     per_question = aggregate_reference_rows(raw)
 
-    core_pool = per_question[per_question["topic"].isin(CORE_TOPICS)].copy()
+    # S2 prompt requires title + text; exclude rows with empty question text.
+    core_pool = per_question[
+        per_question["topic"].isin(CORE_TOPICS) & per_question["has_question_text"]
+    ].copy()
     core_pool = core_pool.sort_values(
         ["view_priority_score", "views_num", "upvotes_num"],
         ascending=[False, False, False],

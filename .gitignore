@@ -1,0 +1,13 @@
+# Secrets / credentials
+.env
+.env.*
+!.env.example
+secrets.*
+*.pem
+*.key
+
+# Local Python environments
+.venv/
+venv/
+__pycache__/
+*.pyc
