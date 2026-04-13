@@ -28,6 +28,10 @@ This workspace is organized for the Member 2 scope in the HCAI project.
 5. Record model outputs using:
    - `templates/response_log_template.csv`
    - naming rules in `docs/folder_and_naming_convention.md`
+6. Sync progress for required models (ChatGPT/Claude/Character.AI/Gemini):
+   ```bash
+   python scripts/sync_collection_progress.py --run-id run01 --sync-tracker --write-report docs/run01_progress_report.md
+   ```
 
 ## Scenario alignment to project plan
 - Scenario 1: multi-turn escalation conversations (8-12 user turns)
