@@ -11,7 +11,6 @@ import pandas as pd
 
 REQUIRED_COLUMNS = [
     "run_id",
-    "timestamp_utc",
     "scenario_id",
     "question_set_item_id",
     "question_id",

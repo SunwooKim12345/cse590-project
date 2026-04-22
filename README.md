@@ -20,7 +20,8 @@ This workspace is organized for the Member 2 scope in the HCAI project.
 3. Use prompt templates:
    - `prompts/scenario1_multiturn_template.md`
    - `prompts/scenario2_singleturn_template.md`
-   - for locked runs, use `prompts/frozen/` copies and `docs/prompt_package_freeze.md`
+   - for S2 locked runs, use `prompts/frozen/` copies and `docs/prompt_package_freeze.md`
+   - for S1 adaptive runs, keep the actual sent turn text in `input_prompt`
 4. Create response collection starter files:
    ```bash
    python scripts/setup_response_collection.py --run-id run01 --operator member2

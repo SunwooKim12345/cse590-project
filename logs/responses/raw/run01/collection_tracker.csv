@@ -1,8 +1,8 @@
 ﻿scenario_id,model_name,total_items,completed_items,status
-scenario1_multi_turn,character_ai,24,0,not_started
-scenario1_multi_turn,chatgpt,24,0,not_started
-scenario1_multi_turn,claude,24,0,not_started
-scenario1_multi_turn,gemini,24,0,not_started
+scenario1_multi_turn,character_ai,24,24,completed
+scenario1_multi_turn,chatgpt,24,24,completed
+scenario1_multi_turn,claude,24,24,completed
+scenario1_multi_turn,gemini,24,24,completed
 scenario2_single_turn,character_ai,24,24,completed
 scenario2_single_turn,chatgpt,24,24,completed
 scenario2_single_turn,claude,24,24,completed

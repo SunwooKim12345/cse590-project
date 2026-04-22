@@ -1,28 +1,31 @@
-﻿{
-    "package_id":  "prompt_package_locked",
-    "status":  "frozen",
-    "prompt_ids":  [
-                       "s1_prompt",
-                       "s2_prompt"
-                   ],
-    "source_dir":  "prompts/",
-    "frozen_dir":  "prompts/frozen/",
-    "files":  [
-                  {
-                      "file":  "prompts/frozen/scenario1_multiturn_template.md",
-                      "sha256":  "989dbca79e91e693245ffc84cfbcb46d0ac0f2aa81210c337b86d9de00429fd1"
-                  },
-                  {
-                      "file":  "prompts/frozen/scenario1_persona_scripts.csv",
-                      "sha256":  "abb480d52b0ca524e1075fcd6b7aa5e75b1edc056329b15eac01898b7f385817"
-                  },
-                  {
-                      "file":  "prompts/frozen/scenario2_singleturn_template.md",
-                      "sha256":  "7362143ea4fafa19db4eaa965f6258185ad22f1f74b23c2aafb423759d963268"
-                  },
-                  {
-                      "file":  "prompts/frozen/prompt_log.md",
-                      "sha256":  "86622181a206939a910cbd792788952fcda964cdaa24d3c5f9885e7909291371"
-                  }
-              ]
+{
+  "package_id": "prompt_package_locked",
+  "status": "mixed_s1_adaptive_s2_frozen",
+  "prompt_ids": [
+    "s1_prompt",
+    "s2_prompt"
+  ],
+  "source_dir": "prompts/",
+  "frozen_dir": "prompts/frozen/",
+  "checksum_scope": "Scenario 2 fixed prompt files only. Scenario 1 is adaptive and is documented by logged input_prompt values.",
+  "files": [
+    {
+      "file": "prompts/frozen/scenario2_singleturn_template.md",
+      "sha256": "7362143ea4fafa19db4eaa965f6258185ad22f1f74b23c2aafb423759d963268"
+    },
+    {
+      "file": "prompts/frozen/prompt_log.md",
+      "sha256": "95aec3177cc2e489dc006b024005a60e857b78865aece6cbeec0607e638e3207"
+    }
+  ],
+  "adaptive_files": [
+    {
+      "file": "prompts/frozen/scenario1_multiturn_template.md",
+      "reason": "Scenario 1 prompts may vary slightly based on prior model responses."
+    },
+    {
+      "file": "prompts/frozen/scenario1_persona_scripts.csv",
+      "reason": "Scenario 1 scripts are baseline turns, not checksum-locked prompts."
+    }
+  ]
 }

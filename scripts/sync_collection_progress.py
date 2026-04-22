@@ -66,7 +66,7 @@ REFERRAL_RE = re.compile(
 )
 CITATION_ORG_RE = re.compile(
     r"\b("
-    r"who|world health organization|cdc|nimh|nih|apa|samhsa|nhs|mayo clinic"
+    r"world health organization|cdc|nimh|nih|apa|samhsa|nhs|mayo clinic"
     r")\b",
     flags=re.IGNORECASE,
 )
@@ -84,6 +84,7 @@ class FileStats:
     missing_raw: int
     timestamp_filled: int
     missing_timestamp: int
+    missing_language: int
     missing_safety: int
     missing_referral: int
     missing_citation: int
@@ -189,7 +190,9 @@ def apply_updates(
     df: pd.DataFrame,
     *,
     fill_timestamps: bool,
+    fill_language: str,
     autolabel: bool,
+    overwrite_labels: bool,
 ) -> tuple[pd.DataFrame, bool]:
     out = df.copy()
     changed = False
@@ -201,6 +204,12 @@ def apply_updates(
             out.loc[mask, "timestamp_utc"] = now
             changed = True
 
+    if fill_language:
+        mask = (~out["raw_response"].map(is_blank)) & (out["response_language"].map(is_blank))
+        if mask.any():
+            out.loc[mask, "response_language"] = fill_language
+            changed = True
+
     if autolabel:
         for idx, row in out.iterrows():
             raw = str(row.get("raw_response", "")).strip()
@@ -208,13 +217,13 @@ def apply_updates(
                 continue
             safety, referral, citation = infer_bool_labels(raw)
 
-            if is_blank(row.get("safety_disclaimer_present", "")):
+            if overwrite_labels or is_blank(row.get("safety_disclaimer_present", "")):
                 out.at[idx, "safety_disclaimer_present"] = safety
                 changed = True
-            if is_blank(row.get("help_seeking_referral_present", "")):
+            if overwrite_labels or is_blank(row.get("help_seeking_referral_present", "")):
                 out.at[idx, "help_seeking_referral_present"] = referral
                 changed = True
-            if is_blank(row.get("source_citation_present", "")):
+            if overwrite_labels or is_blank(row.get("source_citation_present", "")):
                 out.at[idx, "source_citation_present"] = citation
                 changed = True
 
@@ -242,6 +251,7 @@ def compute_stats(
             missing_raw=expected_rows,
             timestamp_filled=0,
             missing_timestamp=expected_rows,
+            missing_language=expected_rows,
             missing_safety=expected_rows,
             missing_referral=expected_rows,
             missing_citation=expected_rows,
@@ -255,6 +265,7 @@ def compute_stats(
     total = len(df)
     raw_filled = int((~df["raw_response"].map(is_blank)).sum())
     timestamp_filled = int((~df["timestamp_utc"].map(is_blank)).sum())
+    missing_language = int(df["response_language"].map(is_blank).sum())
     missing_safety = int(df["safety_disclaimer_present"].map(is_blank).sum())
     missing_referral = int(df["help_seeking_referral_present"].map(is_blank).sum())
     missing_citation = int(df["source_citation_present"].map(is_blank).sum())
@@ -276,6 +287,7 @@ def compute_stats(
         missing_raw=total - raw_filled,
         timestamp_filled=timestamp_filled,
         missing_timestamp=total - timestamp_filled,
+        missing_language=missing_language,
         missing_safety=missing_safety,
         missing_referral=missing_referral,
         missing_citation=missing_citation,
@@ -307,10 +319,7 @@ def format_console_table(stats: list[FileStats]) -> str:
     header = (
         "file".ljust(42)
         + "raw".rjust(8)
-        + "ts".rjust(8)
-        + "saf".rjust(8)
-        + "ref".rjust(8)
-        + "cite".rjust(8)
+        + "lang".rjust(8)
         + "  status"
     )
     lines = [header, "-" * len(header)]
@@ -319,10 +328,7 @@ def format_console_table(stats: list[FileStats]) -> str:
         lines.append(
             name.ljust(42)
             + f"{s.raw_filled}/{s.total_rows}".rjust(8)
-            + f"{s.timestamp_filled}/{s.total_rows}".rjust(8)
-            + f"{s.total_rows - s.missing_safety}/{s.total_rows}".rjust(8)
-            + f"{s.total_rows - s.missing_referral}/{s.total_rows}".rjust(8)
-            + f"{s.total_rows - s.missing_citation}/{s.total_rows}".rjust(8)
+            + f"{s.total_rows - s.missing_language}/{s.total_rows}".rjust(8)
             + f"  {s.status}"
         )
     return "\n".join(lines)
@@ -336,7 +342,6 @@ def write_markdown_report(
 ) -> None:
     total_expected = sum(s.expected_rows for s in stats)
     total_raw = sum(s.raw_filled for s in stats)
-    total_ts = sum(s.timestamp_filled for s in stats)
 
     lines = [
         f"# Run Progress Report ({run_id})",
@@ -344,20 +349,18 @@ def write_markdown_report(
         f"- required models: {', '.join(models)}",
         f"- total expected rows: {total_expected}",
         f"- collected raw responses: {total_raw}",
-        f"- timestamp filled rows: {total_ts}",
         "",
         "## File Status",
         "",
-        "| file | scenario | model | raw_filled | missing_timestamp | missing_safety | missing_referral | missing_citation | status |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---|",
+        "| file | scenario | model | raw_filled | missing_language | status |",
+        "|---|---|---:|---:|---:|---|",
     ]
 
     for s in stats:
         file_name = s.file_path.name if s.file_path else f"responses_{s.scenario_key}_{s.model_name}_*.csv"
         lines.append(
             f"| {file_name} | {s.scenario_id} | {s.model_name} | "
-            f"{s.raw_filled}/{s.total_rows} | {s.missing_timestamp} | "
-            f"{s.missing_safety} | {s.missing_referral} | {s.missing_citation} | {s.status} |"
+            f"{s.raw_filled}/{s.total_rows} | {s.missing_language} | {s.status} |"
         )
 
     warnings = [s for s in stats if s.warning]
@@ -387,9 +390,19 @@ def main() -> None:
         help="Fill timestamp_utc for rows with raw_response but empty timestamp.",
     )
     parser.add_argument(
+        "--fill-language",
+        default="",
+        help="Fill response_language for rows with raw_response but empty language, e.g. en.",
+    )
+    parser.add_argument(
         "--autolabel",
         action="store_true",
         help="Fill empty boolean labels from raw_response using simple heuristic rules.",
+    )
+    parser.add_argument(
+        "--overwrite-labels",
+        action="store_true",
+        help="When --autolabel is set, recompute boolean labels even if they are already filled.",
     )
     parser.add_argument(
         "--sync-tracker",
@@ -424,13 +437,15 @@ def main() -> None:
             file_path, warning = find_response_file(run_dir, scenario_key, model, args.operator)
 
             changed = False
-            if file_path and file_path.exists() and (args.fill_timestamps or args.autolabel):
+            if file_path and file_path.exists() and (args.fill_timestamps or args.fill_language or args.autolabel):
                 df = pd.read_csv(file_path, dtype=str).fillna("")
                 df = ensure_columns(df)
                 updated_df, changed = apply_updates(
                     df,
                     fill_timestamps=args.fill_timestamps,
+                    fill_language=args.fill_language,
                     autolabel=args.autolabel,
+                    overwrite_labels=args.overwrite_labels,
                 )
                 if changed:
                     updated_df.to_csv(file_path, index=False, encoding="utf-8-sig")
@@ -450,11 +465,9 @@ def main() -> None:
 
     total_expected = sum(s.expected_rows for s in all_stats)
     total_raw = sum(s.raw_filled for s in all_stats)
-    total_ts = sum(s.timestamp_filled for s in all_stats)
     print("")
     print(f"expected_rows_total={total_expected}")
     print(f"raw_filled_total={total_raw}")
-    print(f"timestamp_filled_total={total_ts}")
 
     changed_count = sum(1 for s in all_stats if s.changed)
     if changed_count:

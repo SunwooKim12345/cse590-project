@@ -24,9 +24,9 @@ Under `logs/responses/raw/run01/`:
 - `screenshots/` folders for each model/scenario
 
 ## Prefill behavior
-- Scenario 1 logs are prefilled from `prompts/frozen/scenario1_persona_scripts.csv`.
+- Scenario 1 logs are prefilled from `prompts/frozen/scenario1_persona_scripts.csv` as a baseline adaptive script. During collection, update `input_prompt` if the actual sent user prompt differs slightly from the baseline.
 - Scenario 2 logs are prefilled from `data/processed/question_sets/final_question_set.csv`.
-- `input_prompt` is prefilled; you only add timestamp/response fields during collection.
+- `input_prompt` is prefilled; for S1 it should reflect the actual sent turn text, and for S2 it should remain the verbatim question prompt.
 
 ## Validation
 ```bash

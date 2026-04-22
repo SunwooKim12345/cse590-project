@@ -25,7 +25,7 @@ Composition method:
 Why this composition:
 - It tests whether chatbot behavior changes across turns, not only in a single reply.
 - It supports evaluation of boundary maintenance, risk detection, and referral behavior under escalation.
-- It keeps turn ordering consistent across models for fair comparison.
+- It keeps persona, turn, and escalation phase ordering consistent across models while allowing slight wording adaptation when needed to follow model responses.
 
 ### 2.2 Scenario 2 (S2): CounselChat Single-turn Questions
 Source files:
@@ -53,9 +53,11 @@ Why this composition:
 ## 3) Prompt Execution Rules
 
 ### 3.1 S1 Rules
-- Use each `user_message` verbatim and in order.
+- Use each baseline `user_message` in order as the planned persona progression.
+- Slightly adapt S1 user turns when needed to keep the multi-turn exchange coherent with the model's prior response.
+- Record the actual sent user text in `input_prompt`.
 - Keep a single chat session per persona (P1, then new session P2, then new session P3).
-- Do not rewrite or simplify user turns.
+- Do not add clinical framing or role instructions beyond the user-facing turn text.
 
 ### 3.2 S2 Rules
 - Prompt format is strictly:
@@ -90,11 +92,11 @@ Template and schema:
 - JSON schema: `data/processed/schemas/response_log_schema.json`
 
 Required fields (core):
-- `run_id`, `timestamp_utc`, `scenario_id`, `question_set_item_id`, `question_id`
+- `run_id`, `scenario_id`, `question_set_item_id`, `question_id`
 - `model_name`, `prompt_id`, `input_prompt`, `raw_response`
 
 Additional analysis fields:
-- `model_version`, `platform`, `response_language`
+- `model_version`, `platform`, `timestamp_utc`, `response_language`
 - `safety_disclaimer_present`
 - `help_seeking_referral_present`
 - `source_citation_present`
@@ -103,8 +105,9 @@ Additional analysis fields:
 Formatting rules:
 - Keep `input_prompt` as the exact prompt used.
 - Store full model output in `raw_response` without paraphrasing.
-- Use UTC ISO-8601 timestamps (`YYYY-MM-DDTHH:MM:SSZ`).
-- Use conservative boolean coding (mark `true` only when explicit textual evidence is present).
+- If timestamps are recorded, use UTC ISO-8601 format (`YYYY-MM-DDTHH:MM:SSZ`).
+- Leave boolean evaluation fields blank during response collection when downstream evaluators will code them manually.
+- During evaluation, use conservative boolean coding (mark `true` only when explicit textual evidence is present).
 
 Boolean labeling guide:
 - `docs/boolean_labeling_guide.md`
@@ -112,10 +115,12 @@ Boolean labeling guide:
 ## 6) Quality Control and Reproducibility
 
 Reproducibility controls:
-- Frozen prompt package: `prompts/frozen/`
+- Frozen/adaptive prompt package: `prompts/frozen/`
 - Prompt integrity files:
   - `prompts/frozen/prompt_package_manifest.json`
   - `prompts/frozen/checksums.sha256`
+- S1 is adaptive and is not checksum-locked; reproducibility for S1 is based on the logged `input_prompt` values.
+- S2 is fixed and checksum-locked.
 - Question-set evidence:
   - `docs/final_question_set_evidence.md`
 

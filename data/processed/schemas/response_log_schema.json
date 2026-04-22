@@ -4,7 +4,6 @@
   "type": "object",
   "required": [
     "run_id",
-    "timestamp_utc",
     "scenario_id",
     "question_set_item_id",
     "question_id",

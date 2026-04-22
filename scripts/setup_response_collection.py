@@ -170,6 +170,8 @@ def main() -> None:
         "question_set_file": "data/processed/question_sets/final_question_set.csv",
         "scenario1_script_file": str(persona_path.relative_to(root)).replace("\\", "/"),
         "prompt_package": "prompts/frozen",
+        "scenario1_prompt_mode": "adaptive_baseline",
+        "scenario1_reproducibility": "actual sent turns are recorded in input_prompt",
         "status": "ready_for_collection",
         "files_created": [str(Path(f).relative_to(root)).replace("\\", "/") for f in files_created],
     }
