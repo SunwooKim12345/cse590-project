@@ -7,6 +7,7 @@ This workspace is organized for the Member 2 scope in the HCAI project.
 - Prompt templates: `prompts/`
 - Standardized response logging format: `templates/` and `data/processed/schemas/`
 - Clean dataset structure and tracking docs: `docs/` and `data/raw/counselchat/`
+- Results: `results/`
 
 ## Quick start
 1. Build the final question set from CounselChat:
