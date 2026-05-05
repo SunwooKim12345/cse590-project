@@ -7,7 +7,14 @@ This workspace is organized for the Member 2 scope in the HCAI project.
 - Prompt templates: `prompts/`
 - Standardized response logging format: `templates/` and `data/processed/schemas/`
 - Clean dataset structure and tracking docs: `docs/` and `data/raw/counselchat/`
-- Results: `results/`
+- All therapist responses used: `data/processed/Therapist Responses/`
+- Scenario 2 Master (used for cosine similarity, choosing responses for human evaluation, and creating heat maps): `scripts/scenario_2_cosine_similarity.ipynb`
+
+## Results
+- Scenario 1: https://drive.google.com/drive/folders/1-UOAATXYWJ2M2KWf6zs1S-M7-SmAy8Xh
+- Scenario 2
+   - Cosine Similarity Heatmaps: `results/Scenario 2/Heat Maps`
+   - Human Evaluation: https://docs.google.com/spreadsheets/d/1un85KF4ait6tthdyZicoiu2p3jT3xTydkxC_FJ_O6B4/edit
 
 ## Quick start
 1. Build the final question set from CounselChat:
