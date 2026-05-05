@@ -11,10 +11,13 @@ This workspace is organized for the Member 2 scope in the HCAI project.
 - Scenario 2 Master (used for cosine similarity, choosing responses for human evaluation, and creating heat maps): `scripts/scenario_2_cosine_similarity.ipynb`
 
 ## Results
-- Scenario 1: https://drive.google.com/drive/folders/1-UOAATXYWJ2M2KWf6zs1S-M7-SmAy8Xh
+- Scenario 1
+   - Survey Results: https://drive.google.com/drive/folders/1-UOAATXYWJ2M2KWf6zs1S-M7-SmAy8Xh
+   - Charts: `results/Scenario 1/`
 - Scenario 2
-   - Cosine Similarity Heatmaps: `results/Scenario 2/Heat Maps`
    - Human Evaluation: https://docs.google.com/spreadsheets/d/1un85KF4ait6tthdyZicoiu2p3jT3xTydkxC_FJ_O6B4/edit
+   - Charts: `results/Scenario 2/`
+   - Cosine Similarity Heatmaps: `results/Scenario 2/Heat Maps`
 
 ## Quick start
 1. Build the final question set from CounselChat:
