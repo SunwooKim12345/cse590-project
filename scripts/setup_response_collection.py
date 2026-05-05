@@ -171,37 +171,13 @@ def main() -> None:
         "scenario1_script_file": str(persona_path.relative_to(root)).replace("\\", "/"),
         "prompt_package": "prompts/frozen",
         "scenario1_prompt_mode": "adaptive_baseline",
-        "scenario1_reproducibility": "actual sent turns are recorded in input_prompt",
+        "scenario1_logging_note": "actual sent turns are recorded in input_prompt",
         "status": "ready_for_collection",
         "files_created": [str(Path(f).relative_to(root)).replace("\\", "/") for f in files_created],
     }
     metadata_path = run_dir / "session_metadata.json"
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
     metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-
-    tracker_rows = []
-    for model in models:
-        tracker_rows.append(
-            {
-                "scenario_id": "scenario1_multi_turn",
-                "model_name": model,
-                "total_items": len(s1_records),
-                "completed_items": 0,
-                "status": "not_started",
-            }
-        )
-        tracker_rows.append(
-            {
-                "scenario_id": "scenario2_single_turn",
-                "model_name": model,
-                "total_items": len(s2_records),
-                "completed_items": 0,
-                "status": "not_started",
-            }
-        )
-    tracker_df = pd.DataFrame(tracker_rows)
-    tracker_path = run_dir / "collection_tracker.csv"
-    tracker_df.to_csv(tracker_path, index=False, encoding="utf-8-sig")
 
     print(f"Prepared run: {run_id}")
     print(f"Run directory: {run_dir}")
@@ -211,7 +187,6 @@ def main() -> None:
     for rel in metadata["files_created"]:
         print(f"- {rel}")
     print(f"- {str(metadata_path.relative_to(root)).replace(chr(92), '/')}")
-    print(f"- {str(tracker_path.relative_to(root)).replace(chr(92), '/')}")
 
 
 if __name__ == "__main__":

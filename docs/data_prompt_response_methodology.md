@@ -76,7 +76,6 @@ Generated run artifacts:
 - `logs/responses/raw/<run_id>/responses_s1_<model>_<operator>.csv`
 - `logs/responses/raw/<run_id>/responses_s2_<model>_<operator>.csv`
 - `logs/responses/raw/<run_id>/session_metadata.json`
-- `logs/responses/raw/<run_id>/collection_tracker.csv`
 
 Collection approach:
 1. Initialize run files using the setup script.
@@ -112,14 +111,14 @@ Formatting rules:
 Boolean labeling guide:
 - `docs/boolean_labeling_guide.md`
 
-## 6) Quality Control and Reproducibility
+## 6) Quality Control
 
-Reproducibility controls:
+Quality-control files:
 - Frozen/adaptive prompt package: `prompts/frozen/`
 - Prompt integrity files:
   - `prompts/frozen/prompt_package_manifest.json`
   - `prompts/frozen/checksums.sha256`
-- S1 is adaptive and is not checksum-locked; reproducibility for S1 is based on the logged `input_prompt` values.
+- S1 is adaptive and is not checksum-locked; exact sent turns are preserved in the logged `input_prompt` values.
 - S2 is fixed and checksum-locked.
 - Question-set evidence:
   - `docs/final_question_set_evidence.md`
@@ -134,4 +133,4 @@ The final workflow ensures:
 - consistent question composition across S1 and S2,
 - strategy-aligned sampling for S2,
 - standardized response logging for all models,
-- reproducible and auditable data processing for later evaluation.
+- auditable data processing for later evaluation.
